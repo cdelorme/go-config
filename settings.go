@@ -12,7 +12,7 @@ import (
 )
 
 type Settings struct {
-	Data map[string]interface{}
+	Data *map[string]interface{}
 }
 
 func (settings *Settings) Set(value interface{}, keys ...string) error {
@@ -20,12 +20,13 @@ func (settings *Settings) Set(value interface{}, keys ...string) error {
 		return errors.New("storing config inside config is not allowed")
 	}
 	if settings.Data == nil {
-		settings.Data = make(map[string]interface{})
+		data := make(map[string]interface{})
+		settings.Data = &data
 	}
 	if len(keys) == 1 {
-		settings.Data[keys[0]] = value
+		(*settings.Data)[keys[0]] = value
 	} else if len(keys) > 1 {
-		return settings.setDeep(&settings.Data, value, keys...)
+		return settings.setDeep(settings.Data, value, keys...)
 	}
 	return nil
 }
@@ -50,7 +51,7 @@ func (settings *Settings) Get(fallback interface{}, keys ...string) interface{} 
 	if len(keys) > 1 {
 		return settings.Get(fallback, keys[1:]...)
 	} else if len(keys) == 1 {
-		if data, exists := settings.Data[keys[0]]; exists {
+		if data, exists := (*settings.Data)[keys[0]]; exists {
 			return data
 		}
 	}
@@ -60,7 +61,7 @@ func (settings *Settings) Get(fallback interface{}, keys ...string) interface{} 
 func (settings *Settings) GetSettings(keys ...string) Settings {
 	data := settings.Get(nil, keys...)
 	if res, ok := data.(map[string]interface{}); ok {
-		return Settings{Data: res}
+		return Settings{Data: &res}
 	}
 	return Settings{}
 }

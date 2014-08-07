@@ -4,22 +4,34 @@ package config
  * DataBag Struct
  *
  * Author: Casey Delow <cdelorme@gmail.com>
- * Date: 2014-8-6
+ * Date: 2014-8-7
  */
 
 type DataBag struct {
 	Data map[string]interface{}
 }
 
-func (bag *DataBag) build() {
+func (bag *DataBag) Set(value interface{}, keys ...string) {
 	if bag.Data == nil {
 		bag.Data = make(map[string]interface{})
 	}
+	if len(keys) == 1 {
+		bag.Data[keys[0]] = value
+	} else if len(keys) > 1 {
+		bag.setDeep(&bag.Data, value, keys...)
+	}
 }
 
-func (bag *DataBag) Set(key string, value interface{}) {
-	bag.build()
-	bag.Data[key] = value
+func (bag *DataBag) setDeep(current *map[string]interface{}, value interface{}, keys ...string) {
+	if _, ok := (*current)[keys[0]]; !ok {
+		(*current)[keys[0]] = make(map[string]interface{})
+	}
+	if len(keys) > 1 {
+		next := (*current)[keys[0]].(map[string]interface{})
+		bag.setDeep(&next, value, keys[1:]...)
+	} else {
+		(*current)[keys[0]] = value
+	}
 }
 
 func (bag *DataBag) Get(fallback interface{}, keys ...string) interface{} {
@@ -55,8 +67,15 @@ func (bag *DataBag) GetInt(fallback int, keys ...string) int {
 	return fallback
 }
 
-func (bag *DataBag) GetFloat(fallback float32, keys ...string) float32 {
+func (bag *DataBag) GetFloat32(fallback float32, keys ...string) float32 {
 	if res, ok := bag.Get(fallback, keys...).(float32); ok {
+		return res
+	}
+	return fallback
+}
+
+func (bag *DataBag) GetBool(fallback bool, keys ...string) bool {
+	if res, ok := bag.Get(fallback, keys...).(bool); ok {
 		return res
 	}
 	return fallback

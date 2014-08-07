@@ -66,3 +66,9 @@ If you want to can break off a `DataBag` from the configuration like this:
     bag := conf.GetBag("")
 
 _The `DataBag` struct gives you all the abstract methods of interacting with the config values, without the `Save` & `Load` methods, and is convenient when you only want to pass a limited portion of the configuration to dependent code._
+
+
+## nuances & bugs
+
+- the flags abstraction is very basic and treats all supplied values as strings; config will cast them as you desire
+- adding the config struct to itself will cause a cyclic error that crashes your application, _so don't do that._

@@ -4,7 +4,7 @@ package config
  * Configuration abstraction
  *
  * Author: Casey Delow <cdelorme@gmail.com>
- * Date: 2014-8-5
+ * Date: 2014-8-7
  */
 
 import (
@@ -14,7 +14,7 @@ import (
 )
 
 type Config struct {
-	DataBag
+	Settings
 	File string
 }
 

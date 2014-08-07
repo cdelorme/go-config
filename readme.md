@@ -65,11 +65,11 @@ You can save changed configuration via:
 
     conf.Save()
 
-If you want to can break off a `DataBag` from the configuration like this:
+If you want to can break off `Settings` from the configuration like this:
 
-    bag := conf.GetBag("")
+    settings := conf.GetSettings("")
 
-_The `DataBag` struct gives you all the abstract methods of interacting with the config values, without the `Save` & `Load` methods, and is convenient when you only want to pass a limited portion of the configuration to dependent code._
+_The `Settings` struct gives you all the abstract methods of interacting with the config values, without the `Save` & `Load` methods, and is convenient when you only want to pass a limited portion of the configuration to dependent code._
 
 
 ## nuances & bugs

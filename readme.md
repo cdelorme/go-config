@@ -69,7 +69,7 @@ If you want to can break off `Settings` from the configuration like this:
 
     settings := conf.GetSettings("")
 
-_The `Settings` struct gives you all the abstract methods of interacting with the config values, without the `Save` & `Load` methods, and is convenient when you only want to pass a limited portion of the configuration to dependent code._
+_The `Settings` struct carries all of the abstract Get/Set methods, but none of the `Config` structs file (`Save` & `Load`) or flag methods.  It carries a pointer to the originals data, so changes made to it will be applied back to the source.  This is handy if you want to supply limited access to a subset of configuration to another struct or library._
 
 
 ## nuances & bugs

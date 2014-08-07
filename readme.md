@@ -49,7 +49,7 @@ Here you can access contents, supplying a fallback or "default value" if the key
     anInterfae := conf.Get(nil, "key")
     aString := conf.GetString("", "key", "keyTwo")
     anInt := conf.GetInt(0, "key")
-    aFloat := conf.GetFloat(0.0, "key")
+    aFloat := conf.GetFloat32(0.0, "key")
 
 You can change the stored data with `Set()`:
 
@@ -70,6 +70,16 @@ If you want to can break off `Settings` from the configuration like this:
     settings := conf.GetSettings("")
 
 _The `Settings` struct carries all of the abstract Get/Set methods, but none of the `Config` structs file (`Save` & `Load`) or flag methods.  It carries a pointer to the originals data, so changes made to it will be applied back to the source.  This is handy if you want to supply limited access to a subset of configuration to another struct or library._
+
+**Introduced a new feature, flag registration for cli overrides!**  You can now register a cli flag with:
+
+    conf.Option("name", "default value", "description", "one", "or", "more", "keys")
+
+_All values are treated as strings, which means it does not support structs or other types of defaults, but you can retreive them as the expected type with the `Get<Type>` methods._
+
+The flag parsing is called when `Load` has finished (whether it was successful or not), but can be called manually via:
+
+    conf.Override()
 
 
 ## nuances & bugs

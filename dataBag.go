@@ -7,31 +7,43 @@ package config
  * Date: 2014-8-7
  */
 
+import (
+	"errors"
+)
+
 type DataBag struct {
 	Data map[string]interface{}
 }
 
-func (bag *DataBag) Set(value interface{}, keys ...string) {
+func (bag *DataBag) Set(value interface{}, keys ...string) error {
+	if _, ok := value.(Config); ok {
+		return errors.New("storing config inside config is not allowed")
+	}
 	if bag.Data == nil {
 		bag.Data = make(map[string]interface{})
 	}
 	if len(keys) == 1 {
 		bag.Data[keys[0]] = value
 	} else if len(keys) > 1 {
-		bag.setDeep(&bag.Data, value, keys...)
+		return bag.setDeep(&bag.Data, value, keys...)
 	}
+	return nil
 }
 
-func (bag *DataBag) setDeep(current *map[string]interface{}, value interface{}, keys ...string) {
+func (bag *DataBag) setDeep(current *map[string]interface{}, value interface{}, keys ...string) error {
 	if _, ok := (*current)[keys[0]]; !ok {
 		(*current)[keys[0]] = make(map[string]interface{})
 	}
 	if len(keys) > 1 {
-		next := (*current)[keys[0]].(map[string]interface{})
+		next, ok := (*current)[keys[0]].(map[string]interface{})
+		if !ok {
+			return errors.New("failed to cast type to map[string]interface, was it a struct?")
+		}
 		bag.setDeep(&next, value, keys[1:]...)
 	} else {
 		(*current)[keys[0]] = value
 	}
+	return nil
 }
 
 func (bag *DataBag) Get(fallback interface{}, keys ...string) interface{} {

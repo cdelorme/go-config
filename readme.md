@@ -53,9 +53,13 @@ Here you can access contents, supplying a fallback or "default value" if the key
 
 You can change the stored data with `Set()`:
 
-    conf.Set("key", "anyvalue")
+    conf.Set("anyvalue", "key")
 
-_It does not allow variable depth, if you want a deeper object, you'll have to assemble it before storing it._
+Data can be set deeper, like this:
+
+    conf.Set("content", "deep", "seeded")
+
+_While deep values are allowed, it only supports `map[string]interface` for deep items, it won't change struct fields, nor can it append new fields to them._
 
 You can save changed configuration via:
 
@@ -70,5 +74,6 @@ _The `DataBag` struct gives you all the abstract methods of interacting with the
 
 ## nuances & bugs
 
+- if you store a struct and attempt to change an inner value, or add new values it will return an error
 - the flags abstraction is very basic and treats all supplied values as strings; config will cast them as you desire
-- adding the config struct to itself will cause a cyclic error that crashes your application, _so don't do that._
+- the code will now allow you to store Config inside Config (it can cause a cyclic error), and will return an error

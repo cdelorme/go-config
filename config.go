@@ -15,6 +15,7 @@ import (
 
 type Config struct {
 	Settings
+	Preferences
 	File string
 }
 
@@ -34,6 +35,8 @@ func (config *Config) Load() error {
 	if jsonErr != nil {
 		return jsonErr
 	}
+
+	config.Override()
 
 	return nil
 }
@@ -60,4 +63,11 @@ func (config *Config) Save() error {
 	}
 
 	return nil
+}
+
+func (config *Config) Override() {
+	config.Parse()
+	for _, flag := range config.Options {
+		config.Set(*flag.Value, flag.Keys...)
+	}
 }

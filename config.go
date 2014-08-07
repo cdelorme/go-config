@@ -20,6 +20,8 @@ type Config struct {
 }
 
 func (config *Config) Load() error {
+	defer config.Override()
+
 	if config.File == "" {
 		return errors.New("No file supplied...")
 	}
@@ -35,8 +37,6 @@ func (config *Config) Load() error {
 	if jsonErr != nil {
 		return jsonErr
 	}
-
-	config.Override()
 
 	return nil
 }

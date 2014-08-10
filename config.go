@@ -10,6 +10,7 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 )
 
@@ -68,6 +69,8 @@ func (config *Config) Save() error {
 func (config *Config) Override() {
 	config.Parse()
 	for _, flag := range config.Options {
-		config.Set(*flag.Value, flag.Keys...)
+		if *flag.Value != "" {
+			config.Set(*flag.Value, flag.Keys...)
+		}
 	}
 }

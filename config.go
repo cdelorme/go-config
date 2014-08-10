@@ -4,7 +4,7 @@ package config
  * Configuration abstraction
  *
  * Author: Casey Delow <cdelorme@gmail.com>
- * Date: 2014-8-7
+ * Date: 2014-8-10
  */
 
 import (

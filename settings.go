@@ -1,12 +1,5 @@
 package config
 
-/**
- * Settings Struct
- *
- * Author: Casey Delow <cdelorme@gmail.com>
- * Date: 2014-8-7
- */
-
 import (
 	"errors"
 )

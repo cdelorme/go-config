@@ -4,13 +4,12 @@ package config
  * Configuration abstraction
  *
  * Author: Casey Delow <cdelorme@gmail.com>
- * Date: 2014-8-10
+ * Date: 2014-8-20
  */
 
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 )
 

@@ -1,5 +1,5 @@
 
-# go-appconfig
+# go-config
 
 Yet another generic configuration layer to simplify loading and accessing configuration for any application.
 

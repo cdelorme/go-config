@@ -8,13 +8,17 @@ type Settings struct {
 	Data *map[string]interface{}
 }
 
-func (settings *Settings) Set(value interface{}, keys ...string) error {
-	if _, ok := value.(Config); ok {
-		return errors.New("storing config inside config is not allowed")
-	}
+func (settings *Settings) build() {
 	if settings.Data == nil {
 		data := make(map[string]interface{})
 		settings.Data = &data
+	}
+}
+
+func (settings *Settings) Set(value interface{}, keys ...string) error {
+    settings.build()
+	if _, ok := value.(Config); ok {
+		return errors.New("storing config inside config is not allowed")
 	}
 	if len(keys) == 1 {
 		(*settings.Data)[keys[0]] = value
@@ -25,6 +29,7 @@ func (settings *Settings) Set(value interface{}, keys ...string) error {
 }
 
 func (settings *Settings) setDeep(current *map[string]interface{}, value interface{}, keys ...string) error {
+    settings.build()
 	if _, ok := (*current)[keys[0]]; !ok {
 		(*current)[keys[0]] = make(map[string]interface{})
 	}
@@ -41,6 +46,7 @@ func (settings *Settings) setDeep(current *map[string]interface{}, value interfa
 }
 
 func (settings *Settings) Get(fallback interface{}, keys ...string) interface{} {
+    settings.build()
 	if len(keys) > 1 {
 		return settings.Get(fallback, keys[1:]...)
 	} else if len(keys) == 1 {

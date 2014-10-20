@@ -10,6 +10,7 @@ import (
 
 func Load(file string) (map[string]interface{}, error) {
 	conf := make(map[string]interface{})
+
 	files := []string{file}
 	appName := path.Base(os.Args[0])
 	usr, err := user.Current()
@@ -17,6 +18,7 @@ func Load(file string) (map[string]interface{}, error) {
 		files = append(files, usr.HomeDir+"/."+appName)
 	}
 	files = append(files, "/etc/"+appName)
+
 	for _, f := range files {
 		openFile, fileErr := os.Open(f)
 		defer openFile.Close()
@@ -28,6 +30,7 @@ func Load(file string) (map[string]interface{}, error) {
 			}
 		}
 	}
+
 	return conf, nil
 }
 

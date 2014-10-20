@@ -12,78 +12,36 @@ Mine is not the only, nor the first; there are many others:
 - [robfig's extended from miguel's](https://github.com/robfig/config)
 - [Unknwon's goconfig](https://github.com/Unknwon/goconfig)
 
-Each aims to deliver a similar goal, make re-usable configuration accessible.
+Each aims to deliver a similar goal; make re-usable configuration accessible.
 
 
 ## sales pitch
 
-My library aims to deliver simplicity, featuring:
+My config library aims to deliver the simplest usable implementation.
 
-- works with json
-- provides an abstracted interface for dynamic access
+It offers `Load()` and `Save()` as functions.  It expects the path to be supplied, but will fallback to the user homedir and application name (ex. `os.Args[0]`) or in `/etc/`.
 
-What it does not feature:
+It works with `map[string]interface{}` data, saving and returning it as needed.  _The user is responsible for casting indexes, though I have an independent/uncoupled [library for this as well](https://github.com/cdelorme/go-maps)._
 
+What my library does not have:
+
+- more than 70 lines of code
 - unit tests
 - complex abstractions
 - interfaces
 - support for multiple file types and formats
 
-Planned features:
-
-- connect with `flags` for overridable config parameters
-
 
 ## usage
 
-The usage is quite simple, create the config object with the expected config file path:
+To attempt to load from a specified file:
 
-    conf := config.Config{File: "path/to/conf.json"}
+    conf, err := config.Load("config.json")
 
-You may now load the configuration:
+_If no file is found, or supplied, it will look in `~/.appname` and `/etc/appname` in that order to attempt to load configuration data.  You can supply an empty string to have it attempt to load from fallback paths.  If no files were found, or it failed to load valid json, an error will be returned._
 
-    conf.Load()
+You can save any `map[string]interface{}` as json via:
 
-Here you can access contents, supplying a fallback or "default value" if the key is not found, and one or more keys to access deep embedded values:
+    err := config.Save("config.json", &aMap)
 
-    anInterfae := conf.Get(nil, "key")
-    aString := conf.GetString("", "key", "keyTwo")
-    anInt := conf.GetInt(0, "key")
-    aFloat := conf.GetFloat32(0.0, "key")
-
-You can change the stored data with `Set()`:
-
-    conf.Set("anyvalue", "key")
-
-Data can be set deeper, like this:
-
-    conf.Set("content", "deep", "seeded")
-
-_While deep values are allowed, it only supports `map[string]interface` for deep items, it won't change struct fields, nor can it append new fields to them._
-
-You can save changed configuration via:
-
-    conf.Save()
-
-If you want to can break off `Settings` from the configuration like this:
-
-    settings := conf.GetSettings("")
-
-_The `Settings` struct carries all of the abstract Get/Set methods, but none of the `Config` structs file (`Save` & `Load`) or flag methods.  It carries a pointer to the originals data, so changes made to it will be applied back to the source.  This is handy if you want to supply limited access to a subset of configuration to another struct or library._
-
-**Introduced a new feature, flag registration for cli overrides!**  You can now register a cli flag with:
-
-    conf.Option("name", "default value", "description", "one", "or", "more", "keys")
-
-_All values are treated as strings, which means it does not support structs or other types of defaults, but you can retreive them as the expected type with the `Get<Type>` methods._
-
-The flag parsing is called when `Load` has finished (whether it was successful or not), but can be called manually via:
-
-    conf.Override()
-
-
-## nuances & bugs
-
-- if you store a struct and attempt to change an inner value, or add new values it will return an error
-- the flags abstraction is very basic and treats all supplied values as strings; config will cast them as you desire
-- the code will now allow you to store Config inside Config (it can cause a cyclic error), and will return an error
+_The map file is supplied by reference.  if the supplied file is an empty string it will attempt to save to `~/.appname`, but it will not attempt to save to `/etc/appname`._

@@ -9,8 +9,6 @@ import (
 )
 
 func Load(file string) (map[string]interface{}, error) {
-	conf := make(map[string]interface{})
-
 	files := []string{file}
 	appName := path.Base(os.Args[0])
 	usr, err := user.Current()
@@ -23,15 +21,17 @@ func Load(file string) (map[string]interface{}, error) {
 		openFile, fileErr := os.Open(f)
 		defer openFile.Close()
 		if fileErr == nil {
+			conf := make(map[string]interface{})
 			decoder := json.NewDecoder(openFile)
 			jsonErr := decoder.Decode(&conf)
 			if jsonErr != nil {
-				return conf, jsonErr
+				return nil, jsonErr
 			}
+			return conf, nil
 		}
 	}
 
-	return conf, nil
+	return nil, errors.New("Unable to locate file for loading")
 }
 
 func Save(file string, data *map[string]interface{}) error {

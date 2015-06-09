@@ -1,3 +1,7 @@
+// Package config provides a stupid-simple abstraction to loading
+// and saving json configuration files in the format of
+// a map[string]interface
+
 package config
 
 import (
@@ -8,16 +12,37 @@ import (
 	"path"
 )
 
-func Load(file string) (map[string]interface{}, error) {
-	files := []string{file}
-	appName := path.Base(os.Args[0])
-	usr, err := user.Current()
-	if err == nil {
-		files = append(files, usr.HomeDir+"/."+appName)
-	}
-	files = append(files, "/etc/"+appName)
+// Load looks for filePath, and loops through standard storage paths
+// starting with XDG_CONFIG_DIR, then HOME, and finally /etc
+// it returns after finding the first file, even if an error occurs
+func Load(filePath string) (map[string]interface{}, error) {
+	try := []string{filePath}
 
-	for _, f := range files {
+	appName := path.Base(os.Args[0])
+
+	home := os.Getenv("HOME")
+	if home == "" {
+		if usr, err := user.Current(); err == nil {
+			home = usr.HomeDir
+		}
+	}
+
+	configDir := os.Getenv("XDG_CONFIG_DIR")
+	if configDir == "" {
+		configDir = ".config"
+	}
+
+	try = append(try, path.Join(home, configDir, appName, appName))
+	try = append(try, path.Join(home, configDir, appName, appName+".json"))
+	try = append(try, path.Join(home, configDir, appName, appName+".conf"))
+	try = append(try, path.Join(home, "."+appName+".conf"))
+	try = append(try, path.Join(home, "."+appName+".conf"))
+	try = append(try, path.Join(home, "."+appName+".conf"))
+	try = append(try, path.Join("/", "etc", appName))
+	try = append(try, path.Join("/", "etc", appName+".json"))
+	try = append(try, path.Join("/", "etc", appName+".conf"))
+
+	for _, f := range try {
 		openFile, fileErr := os.Open(f)
 		defer openFile.Close()
 		if fileErr == nil {
@@ -34,16 +59,28 @@ func Load(file string) (map[string]interface{}, error) {
 	return nil, errors.New("Unable to locate file for loading")
 }
 
-func Save(file string, data *map[string]interface{}) error {
-	if file == "" {
-		usr, err := user.Current()
-		if err != nil {
-			return errors.New("No supplied or accessible files for save operation")
+// Save accepts a filePath and a map[string]interface{} of data
+// and attempts to save to the filePath, or if filePath is empty
+// it attempts to save to the default XDG_CONFIG_DIR path
+func Save(filePath string, data *map[string]interface{}) error {
+	if filePath == "" {
+		appName := path.Base(os.Args[0])
+		home := os.Getenv("HOME")
+		if home == "" {
+			if usr, err := user.Current(); err == nil {
+				home = usr.HomeDir
+			}
 		}
-		file = usr.HomeDir + "/." + path.Base(os.Args[0])
+		configDir := os.Getenv("XDG_CONFIG_DIR")
+		if configDir == "" {
+			configDir = ".config"
+		}
+		filePath = path.Join(home, configDir, appName, appName)
 	}
 
-	openFile, fileErr := os.Create(file)
+	os.MkdirAll(path.Dir(filePath), os.ModeDir)
+
+	openFile, fileErr := os.Create(filePath)
 	defer openFile.Close()
 	if fileErr != nil {
 		return fileErr

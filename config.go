@@ -78,7 +78,7 @@ func Save(filePath string, data *map[string]interface{}) error {
 		filePath = path.Join(home, configDir, appName, appName)
 	}
 
-	os.MkdirAll(path.Dir(filePath), os.ModeDir)
+	os.MkdirAll(path.Dir(filePath), os.ModePerm)
 
 	openFile, fileErr := os.Create(filePath)
 	defer openFile.Close()

@@ -32,6 +32,7 @@ func Load(filePath string) (map[string]interface{}, error) {
 		configDir = ".config"
 	}
 
+	// I could have used a loop, but this was much more strait forward
 	try = append(try, path.Join(home, configDir, appName, appName))
 	try = append(try, path.Join(home, configDir, appName, appName+".json"))
 	try = append(try, path.Join(home, configDir, appName, appName+".conf"))
@@ -62,7 +63,7 @@ func Load(filePath string) (map[string]interface{}, error) {
 // Save accepts a filePath and a map[string]interface{} of data
 // and attempts to save to the filePath, or if filePath is empty
 // it attempts to save to the default XDG_CONFIG_DIR path
-func Save(filePath string, data *map[string]interface{}) error {
+func Save(filePath string, data map[string]interface{}) error {
 	if filePath == "" {
 		appName := path.Base(os.Args[0])
 		home := os.Getenv("HOME")

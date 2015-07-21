@@ -35,6 +35,8 @@ What my library does not have:
 
 _Whether you believe all of these to be beneficial is a matter of personal preference,_ but given it's size it should be possible to grasp the complete project in your head at a glance.  This makes it a breeze to pickup and use confidently.
 
+This package can be combined with [go-option](https://github.com/cdelorme/go-option) and [go-env](https://github.com/cdelorme/go-env) to produce a single `map[string]interface{}` of application settings.
+
 
 ## usage
 

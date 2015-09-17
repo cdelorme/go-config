@@ -17,25 +17,42 @@ Each aims to deliver a similar goal of accessing configuration via a module.
 
 ## sales pitch
 
-My config library aims to deliver the simplest usable implementation.
+My config library aims to deliver the simplest re-usable cross-platform implementation for dealing with json configuration.
 
-It's only operations are `Load()` and `Save()`.  These operations use XDG default paths when no path is supplied.  The `Save()` operation will use `~/.config/appname/appname`, and load will look for `~/.config/appname/appname`, then `~/.appname`, and finally `/etc/appname`.  _The `Load()` operation will also look for .json and .conf extensions at each path before giving up._
+It has two operations:
 
-If either fails, it will return an error.
+- `Load()`
+- `Save()`
 
-Load will return a `map[string]interface{}`, giving you the flexibility of casting to expected types.  A [map support library](https://github.com/cdelorme/go-maps) is also available to help with basic casting and merging.
+It builds a list of standard paths based on environment variables, and provides the default path via the `ConfigPath` package variable.  It automatically attempts extensionless plus `.json` and `.conf` naming conventions.
 
-What my library does not have:
+Both methods may return an error, and `Load()` returns a go native type `map[string]interface{}`, giving you the flexibility to cast and work with data as desired.  A [support library](https://github.com/cdelorme/go-maps) can be used to simplify conversion or access.
+
+Things my library does not include:
 
 - more than 110 lines of code
-- unit tests
 - complex abstractions
 - interfaces
-- support for multiple file types and formats
+- support for many file types/formats
+- unit tests
 
 _Whether you believe all of these to be beneficial is a matter of personal preference,_ but given it's size it should be possible to grasp the complete project in your head at a glance.  This makes it a breeze to pickup and use confidently.
 
-This package can be combined with [go-option](https://github.com/cdelorme/go-option) and [go-env](https://github.com/cdelorme/go-env) to produce a single `map[string]interface{}` of application settings.
+**This package was intended to be used alongside the [go-option](https://github.com/cdelorme/go-option) and [go-env](https://github.com/cdelorme/go-env) packages to handle application configuration.**
+
+
+## standard configuration paths
+
+This library works with the following prioritized list of standard storage paths:
+
+- `{appName}{.conf,.json}`
+- `{APPDATA}/{appName}{.conf,.json}`
+- `{XDG_CONFIG_DIR}/{appName}{.conf,.json}`
+- `{HOME}/.{appName}{.conf,.json}`
+- `/etc/{appName}{.conf,.json}`
+- `/etc/{appName}/{appName}{.conf,.json}`
+
+When you run `Load()` with no arguments, it will search this list returning the first file found.  Similarly it will use `APPDATA`/`XDG_CONFIG_DIR` as the default `Save()` path when no arguments are supplied.
 
 
 ## usage
@@ -48,7 +65,10 @@ To attempt to load from a specified file:
 
     conf, err := config.Load("config.json")
 
-You can save any `map[string]interface{}` as json via:
+_Load will remember what file configuration was loaded from in the package-variable `ConfigFile`, which by default uses `APPDATA` or `XDG_CONFIG_DIR` standard paths._
 
-    err := config.Save("config.json", aMap)
+You can save any object that can be marshaled into json via:
 
+    err := config.Save(aMap, "config.json")
+
+_If no file is supplied, it will attempt to use `ConfigFile`.  By default json marshal uses pretty-printed output for readability._

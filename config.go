@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 )
 
 var exts = []string{"", ".json", ".conf"}
@@ -42,7 +43,9 @@ func init() {
 	}
 	xdg := os.Getenv("XDG_CONFIG_DIR")
 	if xdg == "" {
-		xdg = filepath.Join(home, ".config", appName)
+		for _, p := range strings.Split(xdg, ":") {
+			xdg = filepath.Join(home, ".config", p)
+		}
 	}
 	list = append(list, xdg, home+"/.", filepath.Join("/etc/", appName)+"/", "/etc/")
 	if ConfigFile == "" {
